@@ -3,7 +3,7 @@
 ### Piotr Konowalski 109727
 
 ## Wstęp
-Poniższy raport przedstawia przebieg analizy zbioru Tweetów celem ich zaklasyfikowania jako "pozytywne", "neutralne" lub "negatywne. Treninowy zbiór danych zawiera jedynie 5970 wpisów co przy analizie języka naturalnego jest dość skromną liczbą. Zbiór treningowy został poddany wstępnemu przetwarzaniu w celu sprowadzenia danych do postaci, która w łatwiejszy sposób poddaje się analizie. Ostatecznie do klasyfikacji użyto algorytmu Random Forrest. Pozwoliło to na uzyskanie dokładności klasyfikacji na poziomie ok. 56%.
+Poniższy raport przedstawia przebieg analizy zbioru Tweetów celem ich zaklasyfikowania jako "pozytywne", "neutralne" lub "negatywne". Treninowy zbiór danych zawiera jedynie 5970 wpisów co przy analizie języka naturalnego jest dość skromną liczbą. Zbiór treningowy został poddany wstępnemu przetwarzaniu w celu sprowadzenia danych do postaci, która w łatwiejszy sposób poddaje się analizie. Ostatecznie do klasyfikacji użyto algorytmu Random Forrest. Pozwoliło to na uzyskanie dokładności klasyfikacji na poziomie ok. 56%.
 
 ## Biblioteki
 
