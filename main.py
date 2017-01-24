@@ -7,8 +7,10 @@ from nltk.tokenize import TweetTokenizer
 from scipy.sparse import csr_matrix
 from sklearn.cross_validation import train_test_split
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import AdaBoostClassifier
 from sklearn.metrics import f1_score, precision_score, recall_score
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import MultinomialNB
 
 stopwords = ["a", "about", "after", "all", "am", "an", "and", "any", "are", "as", "at", "be", "because", "been",
              "before", "being", "between", "both", "by", "could", "did", "do", "does", "doing", "during", "each",
@@ -46,6 +48,16 @@ def prepare_tokens(text):
     return tokens
 
 
+def get_common_words():
+    words = Counter()
+    for i in tweets.index:
+        tweet = tweets.loc[i, 'Tweet']
+        tokens = prepare_tokens(tweet)
+        words.update(tokens)
+
+    return words
+
+
 def create_bow(documents, features, read_labels=True):
     row = []
     col = []
@@ -68,16 +80,6 @@ def create_bow(documents, features, read_labels=True):
             col.append(features[token])
             data.append(1)
     return csr_matrix((data, (row, col)), shape=(len(documents), len(features))), labels
-
-
-def get_common_words():
-    words = Counter()
-    for i in tweets.index:
-        tweet = tweets.loc[i, 'Tweet']
-        tokens = prepare_tokens(tweet)
-        words.update(tokens)
-
-    return words
 
 
 def test_classifier(classifier, dataset, feature_dict, list_of_labels):
@@ -111,24 +113,49 @@ def main():
     test.columns = columns
 
     print("Training classifier...")
-    x_train, y_train = create_bow(train, feature_dict)
-    list_of_labels = list(set(y_train))
-    # classifier = RandomForestClassifier(n_estimators=500, n_jobs=-1, random_state=23)
-    knn = KNeighborsClassifier(10, n_jobs=-1)
-    knn.fit(x_train, y_train)
 
-    forrest = RandomForestClassifier(n_estimators=500, n_jobs=-1, random_state=23)
+    dataset = tweets
+    # dataset = train
+
+    x_train, y_train = create_bow(dataset, feature_dict)
+    list_of_labels = list(set(y_train))
+
+    forrest = RandomForestClassifier(n_estimators=300, n_jobs=-1, random_state=23)
     forrest.fit(x_train, y_train)
+
+    # ada = AdaBoostClassifier(n_estimators=300, )
+    # ada.fit(x_train, y_train)
+    #
+    # nb = MultinomialNB()
+    # nb.fit(x_train, y_train)
+    #
+    # knn = KNeighborsClassifier()
+    # knn.fit(x_train, y_train)
+
+    # classifiers = [forrest, ada, nb, knn]
+
+    classifiers = [forrest]
 
     print("Testing...")
 
-    test_classifier(knn, test, feature_dict, list_of_labels)
-    test_classifier(forrest, test, feature_dict, list_of_labels)
+    # for classifier in classifiers:
+    #     test_classifier(classifier, test, feature_dict, list_of_labels)
+
+    # test_classifier(forrest, test, feature_dict, list_of_labels)
 
     test = pd.read_csv("test.csv", '.', ',', header=0)
     x_test, _ = create_bow(test, feature_dict, read_labels=False)
-    predicted = knn.predict(x_test)
+    predicted = forrest.predict(x_test)
     test['Category'] = pd.Series(predicted, index=test.index)
+
+    # for i in test.head().index:
+    #     tokens = prepare_tokens(test.loc[i, 'Tweet'])
+    #     if not set([':)', ':-)', ';)', ';-)']).isdisjoint(tokens):
+    #         test.loc[i, 'Category'] = 'positive'
+    #
+    #     if not set([':(', ':-(', ';(', ';-(']).isdisjoint(tokens):
+    #         test.loc[i, 'Category'] = 'negative'
+
     result = test.loc[:, ['Id', 'Category']]
 
     result.to_csv('result.csv', index=False)
